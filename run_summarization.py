@@ -41,15 +41,15 @@ def postprocess_text(preds, labels):
         return preds, labels
 
 def main(args):
-    tokenizer = AutoTokenizer.from_pretrained("t5-small")
+    tokenizer = AutoTokenizer.from_pretrained("google/mt5-small")
     
-    model = AutoModelForSeq2SeqLM.from_pretrained("t5-small")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/mt5-small")
     data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
 
     data = load_dataset(args)
 
-    train_dataset = SummarizeDataset(data["train"], tokenizer, args.max_len, 'train')
-    valid_dataset = SummarizeDataset(data["valid"], tokenizer, args.max_len, 'valid')
+    train_dataset = SummarizeDataset(data["train"], tokenizer, args.max_source_length, args.max_target_length, 'train')
+    valid_dataset = SummarizeDataset(data["valid"], tokenizer, args.max_source_length, args.max_target_length, 'valid')
 
     # Metric
     metric = load_metric("rouge")
@@ -83,7 +83,6 @@ def main(args):
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
         weight_decay=args.weight_decay,
-        save_total_limit=3,
         num_train_epochs=args.epoch,
         fp16=True,
         do_train=True
@@ -136,12 +135,13 @@ def parse_args() -> Namespace:
     )
 
     # data
-    parser.add_argument("--max_len", type=int, default=512)
+    parser.add_argument("--max_source_length", type=int, default=256)
+    parser.add_argument("--max_target_length", type=int, default=64)
 
     # optimizer
-    parser.add_argument("--lr", type=float, default=2e-5)
-    parser.add_argument("--weight_decay", type=float, default=0.01)
-    parser.add_argument("--epoch", type=float, default=500)
+    parser.add_argument("--lr", type=float, default=4e-5)
+    parser.add_argument("--weight_decay", type=float, default=0.001)
+    parser.add_argument("--epoch", type=float, default=16)
 
     # data loader
     parser.add_argument("--batch_size", type=int, default=16)
@@ -150,7 +150,6 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cuda:0"
     )
-    parser.add_argument("--no_pretrain", action='store_true')
     args = parser.parse_args()
     return args
 

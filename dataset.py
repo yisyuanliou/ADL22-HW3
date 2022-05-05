@@ -2,10 +2,11 @@ from tqdm import tqdm
 from torch.utils.data import Dataset
 
 class SummarizeDataset(Dataset):
-    def __init__(self, data, tokenizer, max_len, split):
+    def __init__(self, data, tokenizer, max_source_length, max_target_length, split):
         self.data = data
         self.tokenizer = tokenizer
-        self.max_len = max_len
+        self.max_source_length = max_source_length
+        self.max_target_length = max_target_length
         self.split = split
 
         self.preprocess_function()
@@ -47,11 +48,11 @@ class SummarizeDataset(Dataset):
                 input = self.data[i][text_column]
                 target = self.data[i][summary_column]
             input = prefix + input
-            model_input = self.tokenizer(input, max_length=self.max_len, padding=padding, truncation=True)
+            model_input = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True)
 
             # Setup the tokenizer for targets
             with self.tokenizer.as_target_tokenizer():
-                label = self.tokenizer(target, max_length=self.max_len, padding=padding, truncation=True)
+                label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True)
             model_input["labels"] = label["input_ids"]
             self.inputs.append(model_input)
 
