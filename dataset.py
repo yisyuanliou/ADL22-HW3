@@ -58,10 +58,10 @@ class SummarizeDataset(Dataset):
                 if split == "test":
                     label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True, return_tensors="pt")
                 else:
-                    label = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True)
+                    label = self.tokenizer(input, max_length=self.max_target_length, padding=padding, truncation=True)
             model_input["labels"] = label["input_ids"]
-
-            model_input["id"] = self.data[i]["id"]
+            if split == "test":
+                model_input["id"] = self.data[i]["id"]
             self.inputs.append(model_input)
 
 
