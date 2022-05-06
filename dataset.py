@@ -9,10 +9,10 @@ class SummarizeDataset(Dataset):
         self.max_target_length = max_target_length
         self.split = split
 
-        self.preprocess_function()
+        self.preprocess_function(split)
 
     # preprocessing
-    def preprocess_function(self, padding="max_length"):
+    def preprocess_function(self, split, padding="max_length"):
         # remove pairs where at least one record is None
         text_column = "maintext"
         summary_column = "title"
@@ -48,12 +48,20 @@ class SummarizeDataset(Dataset):
                 input = self.data[i][text_column]
                 target = self.data[i][summary_column]
             input = prefix + input
-            model_input = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True)
-
+            if split == "test":
+                model_input = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True, return_tensors="pt")
+            else:
+                model_input = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True)
+            
             # Setup the tokenizer for targets
             with self.tokenizer.as_target_tokenizer():
-                label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True)
+                if split == "test":
+                    label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True, return_tensors="pt")
+                else:
+                    label = self.tokenizer(input, max_length=self.max_source_length, padding=padding, truncation=True)
             model_input["labels"] = label["input_ids"]
+
+            model_input["id"] = self.data[i]["id"]
             self.inputs.append(model_input)
 
 

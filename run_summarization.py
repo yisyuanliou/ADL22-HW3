@@ -21,12 +21,12 @@ def load_dataset(args):
     data_paths = os.path.join(args.data_dir, "train.jsonl")
     with  open(data_paths, 'r', encoding="utf-8") as json_file:
         json_list = list(json_file)
-        text = [json.loads(f) for f in json_list]
+        data["train"] = [json.loads(f) for f in json_list]
     
-    data_len = len(text)
-    np.random.shuffle(text)
-    data["train"] = text[int(data_len * 0.2):]
-    data["valid"] = text[:int(data_len * 0.2)]
+    data_paths = os.path.join(args.data_dir, "public.jsonl")
+    with  open(data_paths, 'r', encoding="utf-8") as json_file:
+        json_list = list(json_file)
+        data["valid"] = [json.loads(f) for f in json_list]
 
     return data
 
@@ -80,8 +80,9 @@ def main(args):
         output_dir=args.ckpt_dir,
         evaluation_strategy="epoch",
         learning_rate=args.lr,
-        per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=args.batch_size,
+        per_device_train_batch_size=args.train_batch_size,
+        per_device_eval_batch_size=args.eval_batch_size,
+        gradient_accumulation_steps=2,
         weight_decay=args.weight_decay,
         num_train_epochs=args.epoch,
         fp16=True,
@@ -95,7 +96,7 @@ def main(args):
         eval_dataset=valid_dataset,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=compute_metrics, 
+        # compute_metrics=compute_metrics, 
     )
 
     # Training
@@ -108,16 +109,6 @@ def main(args):
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         trainer.save_state()
-
-    # Evaluation
-    max_length = args.max_len
-    num_beams = 5
-    if training_args.do_eval:
-        metrics = trainer.evaluate(max_length=max_length, num_beams=num_beams, metric_key_prefix="eval")
-
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
-
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
@@ -144,7 +135,8 @@ def parse_args() -> Namespace:
     parser.add_argument("--epoch", type=float, default=16)
 
     # data loader
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--train_batch_size", type=int, default=16)
+    parser.add_argument("--eval_batch_size", type=int, default=16)
 
     # training
     parser.add_argument(
