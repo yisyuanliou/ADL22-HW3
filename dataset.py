@@ -43,7 +43,7 @@ class SummarizeDataset(Dataset):
         # return model_inputs
 
         self.inputs = []
-        for i in range(len(self.data)):
+        for i in tqdm(range(len(self.data))):
             if self.data[i][text_column] is not None and self.data[i][summary_column] is not None:
                 input = self.data[i][text_column]
                 target = self.data[i][summary_column]
@@ -55,11 +55,10 @@ class SummarizeDataset(Dataset):
             
             # Setup the tokenizer for targets
             with self.tokenizer.as_target_tokenizer():
-                if split == "test":
-                    label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True, return_tensors="pt")
-                else:
-                    label = self.tokenizer(input, max_length=self.max_target_length, padding=padding, truncation=True)
-            model_input["labels"] = label["input_ids"]
+                if split != "test":
+                    label = self.tokenizer(target, max_length=self.max_target_length, padding=padding, truncation=True)
+                    model_input["labels"] = label["input_ids"]
+
             if split == "test":
                 model_input["id"] = self.data[i]["id"]
             self.inputs.append(model_input)

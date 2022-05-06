@@ -22,16 +22,6 @@ def load_dataset(args):
 
     return data
 
-def postprocess_text(preds, labels):
-        preds = [pred.strip() for pred in preds]
-        labels = [label.strip() for label in labels]
-
-        # rougeLSum expects newline after each sentence
-        preds = ["\n".join(nltk.sent_tokenize(pred)) for pred in preds]
-        labels = ["\n".join(nltk.sent_tokenize(label)) for label in labels]
-
-        return preds, labels
-
 def main(args):
     tokenizer = AutoTokenizer.from_pretrained(args.ckpt_dir)
     model = AutoModelForSeq2SeqLM.from_pretrained(args.ckpt_dir).to(args.device)
@@ -49,7 +39,7 @@ def main(args):
             predict = model.generate(
                 input_ids=data['input_ids'].squeeze().to(args.device),
                 attention_mask=data['attention_mask'].squeeze().to(args.device),
-                max_length=args.max_target_length,
+                max_length=args.max_source_length,
                 num_beams=5,
                 no_repeat_ngram_size=2,
                 early_stopping=True
