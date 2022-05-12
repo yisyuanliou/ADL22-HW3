@@ -50,6 +50,7 @@ def main(args):
         gradient_accumulation_steps=2,
         weight_decay=args.weight_decay,
         num_train_epochs=args.epoch,
+        overwrite_output_dir=False,
         # fp16=True,
         do_train=True
     )
@@ -65,7 +66,11 @@ def main(args):
 
     # Training
     if training_args.do_train:
-        train_result = trainer.train()
+        checkpoint = None
+        if args.resume_from_checkpoint:
+            train_result = trainer.train(resume_from_checkpoint=True)
+        else:
+            train_result = trainer.train()
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
         metrics = train_result.metrics
@@ -87,6 +92,10 @@ def parse_args() -> Namespace:
         type=Path,
         help="Directory to save the model file.",
         default="./ckpt/test/",
+    )
+    parser.add_argument(
+        "--resume_from_checkpoint",
+        action="store_true"
     )
 
     # data
