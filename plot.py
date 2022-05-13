@@ -1,13 +1,13 @@
 import os
 import torch
 import json
-import nltk
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from dataset import SummarizeDataset
 from tw_rouge import get_rouge
+import matplotlib.pyplot as plt
 
 from transformers import (
     AutoTokenizer, 
@@ -25,7 +25,7 @@ def load_dataset(args):
     return data
 
 def main(args):
-    data = load_dataset(args)
+    dataset = load_dataset(args)
 
     rouge_1 = []
     rouge_2 = []
@@ -44,7 +44,7 @@ def main(args):
         tokenizer = AutoTokenizer.from_pretrained(ckpt_path)
         model = AutoModelForSeq2SeqLM.from_pretrained(ckpt_path).to(args.device)
 
-        test_dataset = SummarizeDataset(data["test"], tokenizer, args.max_source_length, args.max_target_length, 'test')
+        test_dataset = SummarizeDataset(dataset["test"], tokenizer, args.max_source_length, args.max_target_length, 'test')
         dataloader = DataLoader(test_dataset, batch_size=args.batch_size)
         # predict
         preds = {}
@@ -69,7 +69,7 @@ def main(args):
         rouge_1.append(rouge["rouge-1"]['f'] * 100)
         rouge_2.append(rouge["rouge-2"]['f'] * 100)
         rouge_L.append(rouge["rouge-l"]['f'] * 100)
-        # print(get_rouge(preds, refs))
+        print(rouge)
 
 
     plt.plot(
@@ -110,7 +110,7 @@ def parse_args() -> Namespace:
         "--ckpt_dir",
         type=Path,
         help="Directory to load the model file.",
-        default="./ckpt/mt5_cont/mt5/",
+        default="./ckpt/mt5/",
     )
     parser.add_argument("--file_path", type=str, default='public.jsonl')
 
@@ -119,7 +119,7 @@ def parse_args() -> Namespace:
     parser.add_argument("--max_target_length", type=int, default=64)
 
     # data loader
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--batch_size", type=int, default=8)
 
     # ground-truth
     parser.add_argument('-r', '--reference')
@@ -129,9 +129,9 @@ def parse_args() -> Namespace:
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cuda:0"
     )
 
-    parser.add_argument("--start_ckpt", type=int, default=19000)
-    parser.add_argument("--end_ckpt", type=int, default=19500)
-    parser.add_argument("--period", type=int, default=3000)
+    parser.add_argument("--start_ckpt", type=int, default=500)
+    parser.add_argument("--end_ckpt", type=int, default=40501)
+    parser.add_argument("--period", type=int, default=4000)
 
     args = parser.parse_args()
     return args

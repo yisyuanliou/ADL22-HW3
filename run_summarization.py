@@ -5,7 +5,6 @@ import numpy as np
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 from dataset import SummarizeDataset
-from datasets import load_metric
 from transformers import (
     AutoTokenizer, 
     DataCollatorForSeq2Seq, 
@@ -108,8 +107,8 @@ def parse_args() -> Namespace:
     parser.add_argument("--epoch", type=float, default=30)
 
     # data loader
-    parser.add_argument("--train_batch_size", type=int, default=16)
-    parser.add_argument("--eval_batch_size", type=int, default=16)
+    parser.add_argument("--train_batch_size", type=int, default=8)
+    parser.add_argument("--eval_batch_size", type=int, default=8)
 
     # training
     parser.add_argument(

@@ -1,7 +1,6 @@
 import os
 import torch
 import json
-import nltk
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from pathlib import Path
@@ -14,9 +13,7 @@ from transformers import (
 
 def load_dataset(args):
     data = {}
-
-    data_paths = os.path.join(args.data_dir, args.file_path)
-    with  open(data_paths, 'r', encoding="utf-8") as json_file:
+    with  open(args.file_path, 'r', encoding="utf-8") as json_file:
         json_list = list(json_file)
         data["test"] = [json.loads(f) for f in json_list]
 
@@ -43,6 +40,7 @@ def main(args):
                 num_beams=5,
                 no_repeat_ngram_size=2,
                 early_stopping=True
+                # top_k=75,
             )
 
             predict = [tokenizer.decode(p, skip_special_tokens=True) for p in predict]
@@ -56,16 +54,10 @@ def main(args):
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
-        "--data_dir",
-        type=Path,
-        help="Directory to the dataset.",
-        default="./data/",
-    )
-    parser.add_argument(
         "--ckpt_dir",
         type=Path,
         help="Directory to save the model file.",
-        default="./ckpt/test/",
+        default="./ckpt/mt5/",
     )
     parser.add_argument("--file_path", type=str, default='public.jsonl')
     parser.add_argument("--output_path", type=str, default='submission.jsonl')
@@ -75,7 +67,7 @@ def parse_args() -> Namespace:
     parser.add_argument("--max_target_length", type=int, default=64)
 
     # data loader
-    parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--batch_size", type=int, default=8)
 
     # training
     parser.add_argument(
