@@ -41,6 +41,7 @@ def main(args):
 
     for i in range(args.start_ckpt, args.end_ckpt, args.period):
         ckpt_path = os.path.join(args.ckpt_dir, "checkpoint-"+str(i))
+        print(ckpt_path)
         tokenizer = AutoTokenizer.from_pretrained(ckpt_path)
         model = AutoModelForSeq2SeqLM.from_pretrained(ckpt_path).to(args.device)
 
