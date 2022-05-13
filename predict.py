@@ -56,7 +56,7 @@ def parse_args() -> Namespace:
         "--ckpt_dir",
         type=Path,
         help="Directory to save the model file.",
-        default="./ckpt/mt5/",
+        default="./mt5_best/",
     )
     parser.add_argument("--file_path", type=str, default='public.jsonl')
     parser.add_argument("--output_path", type=str, default='submission.jsonl')
