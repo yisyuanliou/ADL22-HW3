@@ -90,7 +90,7 @@ def parse_args() -> Namespace:
         "--ckpt_dir",
         type=Path,
         help="Directory to save the model file.",
-        default="./ckpt/test/",
+        default="./ckpt/mt5/",
     )
     parser.add_argument(
         "--resume_from_checkpoint",
@@ -102,7 +102,7 @@ def parse_args() -> Namespace:
     parser.add_argument("--max_target_length", type=int, default=64)
 
     # optimizer
-    parser.add_argument("--lr", type=float, default=4e-5)
+    parser.add_argument("--lr", type=float, default=3e-5)
     parser.add_argument("--weight_decay", type=float, default=1e-3)
     parser.add_argument("--epoch", type=float, default=30)
 

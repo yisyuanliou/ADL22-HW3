@@ -18,8 +18,7 @@ from transformers import (
 def load_dataset(args):
     data = {}
 
-    data_paths = os.path.join(args.data_dir, args.file_path)
-    with  open(data_paths, 'r', encoding="utf-8") as json_file:
+    with  open(args.file_path, 'r', encoding="utf-8") as json_file:
         json_list = list(json_file)
         data["test"] = [json.loads(f) for f in json_list]
     return data
@@ -102,12 +101,6 @@ def main(args):
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
-        "--data_dir",
-        type=Path,
-        help="Directory to the dataset.",
-        default="./data/",
-    )
-    parser.add_argument(
         "--ckpt_dir",
         type=Path,
         help="Directory to load the model file.",
@@ -130,9 +123,9 @@ def parse_args() -> Namespace:
         "--device", type=torch.device, help="cpu, cuda, cuda:0, cuda:1", default="cuda:0"
     )
 
-    parser.add_argument("--start_ckpt", type=int, default=500)
-    parser.add_argument("--end_ckpt", type=int, default=40501)
-    parser.add_argument("--period", type=int, default=4000)
+    parser.add_argument('-s', "--start_ckpt", type=int, default=500)
+    parser.add_argument('-e', "--end_ckpt", type=int, default=40501)
+    parser.add_argument('-p', "--period", type=int, default=4000)
 
     args = parser.parse_args()
     return args

@@ -6,13 +6,35 @@ Dataset & evaluation script for ADL 2022 homework 3
 
 ## Installation
 ```
-git clone https://github.com/moooooser999/ADL22-HW3.git
-cd ADL22-HW3
 pip install -e tw_rouge
 ```
 
+## Download model
+```
+bash ./download.sh
+```
 
-## Usage
+## Prediction
+```
+bash ./run.sh /path/to/input.jsonl /path/to/output.jsonl
+```
+
+## Training
+```
+python run_summarization.py --data_dir /path/to/data
+```
+
+## Plotting learning curve
+```
+CUDA_VISIBLE_DEVICES=0 python plot.py [-r REFERENCE] [start_ckpt] [end_ckpt] [period]
+optional arguments:
+  -r REFERENCE, --reference REFERENCE
+  -s START, --start_ckpt START
+  -e END, --end_ckpt END
+  -p PERIOD, --period PERIOD
+```
+
+## Evaluation Usage
 ### Use the Script
 ```
 usage: eval.py [-h] [-r REFERENCE] [-s SUBMISSION]

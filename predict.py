@@ -39,8 +39,7 @@ def main(args):
                 max_length=args.max_source_length,
                 num_beams=5,
                 no_repeat_ngram_size=2,
-                early_stopping=True
-                # top_k=75,
+                early_stopping=True,
             )
 
             predict = [tokenizer.decode(p, skip_special_tokens=True) for p in predict]
